@@ -42,10 +42,11 @@ public class MainActivity extends Activity {
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
         else{
-
+        
     	Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
     	discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
     	startActivity(discoverableIntent);
+    	mBluetoothAdapter.startDiscovery();
         }
      }
 
@@ -64,7 +65,12 @@ public class MainActivity extends Activity {
 	            // Get the BluetoothDevice object from the Intent
 	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 	            // Add the name and address to an array adapter to show in a ListView
-	            
+	            context = getApplicationContext();
+	            CharSequence text = device.getName() + "\n" + device.getAddress();
+	            int duration = Toast.LENGTH_SHORT;
+
+	            Toast toast = Toast.makeText(context, text, duration);
+	            toast.show();
 	        	System.out.println(device.getName() + "\n" + device.getAddress());
 
 	        }
