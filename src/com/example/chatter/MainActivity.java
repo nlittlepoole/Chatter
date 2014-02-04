@@ -46,7 +46,8 @@ public class MainActivity extends Activity {
         else if (!mBluetoothAdapter.isEnabled()){
         	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-            new AcceptThread();
+        	Thread mConnectedThread = new AcceptThread();
+            mConnectedThread.start();
         }
         else{
         
@@ -54,7 +55,8 @@ public class MainActivity extends Activity {
     	discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
     	startActivity(discoverableIntent);
     	mBluetoothAdapter.startDiscovery();
-    	new ConnectThread(null);
+    	Thread mConnectedThread = new ConnectThread(null);
+        mConnectedThread.start();
         }
      }
 
