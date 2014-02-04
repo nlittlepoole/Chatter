@@ -66,12 +66,12 @@ public class MainActivity extends Activity {
 	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 	            // Add the name and address to an array adapter to show in a ListView
 	            context = getApplicationContext();
-	            CharSequence text = device.getName() + "\n" + device.getAddress();
+	            CharSequence text = device.getName() + "\n" + device.getAddress() + "\n" + device.getBluetoothClass();
 	            int duration = Toast.LENGTH_SHORT;
 
 	            Toast toast = Toast.makeText(context, text, duration);
 	            toast.show();
-	        	System.out.println(device.getName() + "\n" + device.getAddress());
+	        	System.out.println(device.getName() + "\n" + device.getAddress() + "\n" + device.getBluetoothClass());
 
 	        }
 	    }
