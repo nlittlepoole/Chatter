@@ -14,12 +14,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     private static final int REQUEST_ENABLE_BT = 1;
     private static BluetoothAdapter mBluetoothAdapter;
+    private static BluetoothDevice device;
 
 
 	@Override
@@ -43,22 +45,33 @@ public class MainActivity extends Activity {
         	Toast toast = Toast.makeText(this, text, duration);
         	toast.show();
         }
-        else if (!mBluetoothAdapter.isEnabled()){
+        if(!mBluetoothAdapter.isEnabled()){
         	Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        	Thread mConnectedThread = new AcceptThread();
-            mConnectedThread.start();
-        }
-        else{
-        
+        }  
     	Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
     	discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
     	startActivity(discoverableIntent);
     	mBluetoothAdapter.startDiscovery();
-    	Thread mConnectedThread = new ConnectThread(null);
-        mConnectedThread.start();
-        }
+
      }
+	/** Called when the user clicks the Connect button */
+	public void connect(View view) {
+	    // Do something in response to button
+    	int x=0;
+    	while(x==0){
+	    	if(device!=null){
+	    		x++;
+	        	Thread mConnectedThread = new ConnectThread(device);
+	            mConnectedThread.start();
+	    	}
+    	}
+	}
+	/** Called when the user clicks the Accept button */
+	public void accept(View view){
+    	Thread mConnectedThread = new AcceptThread();
+        mConnectedThread.start();
+	}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -73,7 +86,7 @@ public class MainActivity extends Activity {
 	        // When discovery finds a device
 	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 	            // Get the BluetoothDevice object from the Intent
-	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+	            device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 	            // Add the name and address to an array adapter to show in a ListView
 	            context = getApplicationContext();
 	            CharSequence text = device.getName() + "\n" + device.getAddress() + "\n" + device.getBluetoothClass();
@@ -95,7 +108,7 @@ public class MainActivity extends Activity {
 		       BluetoothServerSocket tmp = null;
 		       try {
 		           // MY_UUID is the app's UUID string, also used by the client code
-		    	   UUID temp=new UUID(2,2);
+		    	   UUID temp=UUID.fromString("f79d717e-d685-4677-8eee-cc4529abbabd");
 		           tmp = mBluetoothAdapter.listenUsingRfcommWithServiceRecord("Stratus", temp);
 		       } catch (IOException e) { }
 		       mmServerSocket = tmp;
@@ -145,7 +158,7 @@ public class MainActivity extends Activity {
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	        	UUID temp=new UUID(2,2);
+	        	UUID temp=UUID.fromString("f79d717e-d685-4677-8eee-cc4529abbabd");
 	            tmp = device.createRfcommSocketToServiceRecord(temp);
 	        } catch (IOException e) { }
 	        mmSocket = tmp;
