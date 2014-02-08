@@ -34,7 +34,7 @@ public class BluetoothBackend extends Activity {
 	private ArrayList<UUID> connectors= new ArrayList<UUID>();
 	private ArrayList<Object> connections=new ArrayList<Object>();
 	private static boolean connect=false;
-	public static Profile user=new Profile("test");
+	public static Profile user=new Profile("test","fuck test");
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -243,11 +243,10 @@ public class BluetoothBackend extends Activity {
 				return;
 			}
 			connect=false;
-			String str="Hello World";
-			System.out.println("Hello World");
+			Message test=new Message("Fuck Java splitting",user);
 			connections.add(new ConnectedThread(mmSocket));
 			((Thread) connections.get(connections.size()-1)).start();
-			((ConnectedThread) connections.get(connections.size()-1)).write(str.getBytes());
+			((ConnectedThread) connections.get(connections.size()-1)).write(test.pushMessage().getBytes());
 
 			// Do work to manage the connection (in a separate thread)
 			//manageConnectedSocket(mmSocket);

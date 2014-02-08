@@ -10,23 +10,31 @@ public class Message {
 	private String message;
 	private String alias;
 	private String channel;
-	private Date time;
+	private String time;
 	private String key;
 	public static Queue<Message> feed=new LinkedList<Message>(); 
 	
 	public Message(String input){
-		String[] in = input.split("^");
+		String[] in = input.split("&&");
 		alias = in[0];
 		channel = in[1];
 		message = in[2];
 		key=input;
-		time = new Date(in[3]);
+		time = in[3];
+	}
+	public Message(String input, Profile user){
+		String[] in = input.split("&&");
+		alias = user.getAlias();
+		channel =user.getChannel();
+		message = input;
+		key=this.pushMessage();
+		time = ""+Math.random()*1000;
 	}
 	
 	public String pushMessage(){
 		Date current = new Date();
-		String toSend = alias + "^" + channel + "^" + message 
-				+ "^" + current.getTime();
+		String toSend = alias + "&&" + channel + "&&" + message 
+				+ "&&" + current.getTime();
 		return toSend;
 	}
 	

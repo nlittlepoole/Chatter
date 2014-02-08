@@ -11,9 +11,11 @@ public class Profile {
 	private Set<String> rejectedChannels;
 	private Set<String> usedAliases;
 	private String alias;
+	private String channel;
 	public static Queue<Message> toSend;
 	
-	public Profile(String alias){
+	public Profile(String alias,String channel){
+		this.channel=channel;
 		this.alias = alias;
 		usedAliases = new HashSet<String>();
 		usedAliases.add(alias);
@@ -21,7 +23,9 @@ public class Profile {
 		rejectedChannels = new HashSet<String>();
 		toSend = new LinkedList<Message>();
 	}
-	
+	public String getChannel(){
+		return channel;
+	}
 	public void addAccChannels(String channel){
 		acceptedChannels.add(channel);
 	}
