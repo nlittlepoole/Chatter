@@ -34,6 +34,7 @@ public class BluetoothBackend extends Activity {
 	private ArrayList<UUID> connectors= new ArrayList<UUID>();
 	private ArrayList<Object> connections=new ArrayList<Object>();
 	private static boolean connect=false;
+	public static Profile user=new Profile("test");
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -291,8 +292,11 @@ public class BluetoothBackend extends Activity {
 					bytes = mmInStream.read(buffer);
 					String input =new String( buffer, Charset.forName("UTF-8") );
 					input=input.substring(0, bytes);
-					System.out.println(input);
-					Message test=new Message(input);
+					Message message=new Message(input);
+					if(!user.inAliases(message.getAlias()))
+						if(user.channelStatus(message.getChannel()))
+							Message.queueMessage(message);
+							
 					// Send the obtained bytes to the UI activity
 					//mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
 					//      .sendToTarget();

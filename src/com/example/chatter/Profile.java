@@ -34,11 +34,20 @@ public class Profile {
 		return usedAliases.contains(alias);
 	}
 	
-	public boolean inAccChan(String channel){
+	public boolean channelStatus(String channel){
+		if(!this.inAccChan(channel) && !this.inRejChan(channel))
+			return true;
+		else if(this.inRejChan(channel))
+			return false;
+		else
+			return true;
+	}
+		
+	private boolean inAccChan(String channel){
 		return acceptedChannels.contains(channel);
 	}
 	
-	public boolean inRejChan(String channel){
+	private boolean inRejChan(String channel){
 		return rejectedChannels.contains(channel);
 	}
 	
