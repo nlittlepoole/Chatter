@@ -9,15 +9,14 @@ public class Message {
 	private String message;
 	private String alias;
 	private String channel;
-	public static Queue<String> feed=new LinkedList<String>();
+	private Date time;
 	
 	public Message(String input){
-		message=input;
-		feed.add(input);
-	}
-	
-	public void addMessage(){
-		//feed.add(this);
+		String[] in = input.split("^");
+		alias = in[0];
+		channel = in[1];
+		message = in[2];
+		time = new Date(in[3]);
 	}
 	
 	public String pushMessage(){
