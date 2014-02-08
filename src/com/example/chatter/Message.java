@@ -17,7 +17,7 @@ public class Message {
 	}
 	
 	public void addMessage(){
-		feed.add(this);
+		//feed.add(this);
 	}
 	
 	public String pushMessage(){

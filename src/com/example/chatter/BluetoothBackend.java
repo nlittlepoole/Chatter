@@ -32,11 +32,13 @@ public class BluetoothBackend extends Activity {
     private ArrayList<BluetoothSocket> mSockets = new ArrayList<BluetoothSocket>();
     private ArrayList<UUID> listeners= new ArrayList<UUID>();
     private ArrayList<UUID> connectors= new ArrayList<UUID>();
+    private ArrayList<Object> connections=new ArrayList<Object>();
+    private static boolean connect=false;
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();        
         ArrayList<UUID> mUuids = new ArrayList<UUID>();
         // 8 randomly-generated UUIDs. These must match on both server and client.
         mUuids.add(UUID.fromString("b7746a40-c758-4868-aa19-7ac6b3475dfc"));
@@ -93,9 +95,12 @@ public class BluetoothBackend extends Activity {
     	for(int i=0; i<devices.size();i++){
 	    	if(devices.get(i)!=null){
 	    		for(UUID uuid:connectors){
-		        	Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
-		            mConnectedThread.start();
+	    			if(connect){
+			        	Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
+			            mConnectedThread.start();
+	    			}
 	    		}
+	    		connect=true;
 	    	}
     	}
 	}
@@ -160,8 +165,8 @@ public class BluetoothBackend extends Activity {
 			               // Do work to manage the connection (in a separate thread)
 			               //manageConnectedSocket(socket);
 			        	   System.out.println("Success!!!!!");
-			        	   Thread mConnectedThread = new ConnectedThread(socket);
-			               mConnectedThread.start();
+			        	   connections.add(new ConnectedThread(socket));
+			               ((Thread) connections.get(connections.size()-1)).start();
 			              /* try {
 							mmServerSocket.close();
 						} catch (IOException e) {
@@ -214,10 +219,12 @@ public class BluetoothBackend extends Activity {
 	            } catch (IOException closeException) { }
 	            return;
 	        }
+	        connect=false;
             String str="Hello World";
             System.out.println("Hello World");
-            ConnectedThread test=new ConnectedThread(mmSocket);
-            test.write(str.getBytes());
+            connections.add(new ConnectedThread(mmSocket));
+            ((Thread) connections.get(connections.size()-1)).start();
+            ((ConnectedThread) connections.get(connections.size()-1)).write(str.getBytes());
 	 
 	        // Do work to manage the connection (in a separate thread)
 	        //manageConnectedSocket(mmSocket);
