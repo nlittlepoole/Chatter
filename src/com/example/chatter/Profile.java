@@ -11,7 +11,7 @@ public class Profile {
 	private Set<String> rejectedChannels;
 	private Set<String> usedAliases;
 	private String alias;
-	private Queue<Message> toSend;
+	public static Queue<Message> toSend;
 	
 	public Profile(String alias){
 		this.alias = alias;
