@@ -1,10 +1,11 @@
 package com.example.chatter;
 
 import java.util.Queue;
+import java.util.Date;
 
 public class Message {
 	private String message;
-	private String Alias;
+	private String alias;
 	private String channel;
 	public static Queue<Message> feed;
 	
@@ -14,12 +15,20 @@ public class Message {
 	}
 	
 	public void addMessage(){
-		
+		feed.add(this);
 	}
 	
-	private void pushMessage(){
-		
+	public String pushMessage(){
+		Date current = new Date();
+		String toSend = alias + "^" + channel + "^" + message 
+				+ "^" + current.getTime();
+		return toSend;
 	}
+	
+	public void clearMessage(){
+		message = null;
+	}
+	
 	public String getMessage(){
 		return message;
 	}
