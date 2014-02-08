@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.Vector;
 
 public class Profile {
 
@@ -12,7 +11,7 @@ public class Profile {
 	private Set<String> rejectedChannels;
 	private Set<String> usedAliases;
 	private String alias;
-	private Queue<Message> toSend = new LinkedList<Message>();
+	private Queue<Message> toSend;
 	
 	public Profile(String alias){
 		this.alias = alias;
@@ -20,6 +19,7 @@ public class Profile {
 		usedAliases.add(alias);
 		acceptedChannels = new HashSet<String>();
 		rejectedChannels = new HashSet<String>();
+		toSend = new LinkedList<Message>();
 	}
 	
 	public void addAccChannels(String channel){
@@ -48,6 +48,10 @@ public class Profile {
 	
 	public Message dequeueMessage(){
 		return toSend.remove();
+	}
+	
+	public String getAlias(){
+		return alias;
 	}
 	
 	
