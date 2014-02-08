@@ -32,10 +32,6 @@ public class Alias {
 		System.out.println(available);
 	}
 	
-	public static void main(String[] args){
-		Alias a = new Alias();
-		a.read("pokemon.txt");
-	}
 	
 	
 }
