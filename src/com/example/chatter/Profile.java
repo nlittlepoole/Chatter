@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.SynchronousQueue;
 
 public class Profile {
 
@@ -15,13 +17,13 @@ public class Profile {
 	public static Queue<Message> toSend;
 	
 	public Profile(String alias,String channel){
-		this.channel=channel!=null || channel.equals("")?channel:"The Danger Zone";
-		this.alias = alias!=null || alias.equals("")? alias:"Bill Belamy";
+		this.channel=channel==null || channel.equals("")?"The Danger Zone":channel;
+		this.alias = alias==null || alias.equals("")? "Bill Bellamy":alias;
 		usedAliases = new HashSet<String>();
 		usedAliases.add(alias);
 		acceptedChannels = new HashSet<String>();
 		rejectedChannels = new HashSet<String>();
-		toSend = new LinkedList<Message>();
+		toSend = new  ConcurrentLinkedQueue<Message>();
 	}
 	public String getChannel(){
 		return channel;

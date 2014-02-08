@@ -30,12 +30,13 @@ public final class R {
         public static final int white=0x7f020006;
     }
     public static final class id {
-        public static final int action_settings=0x7f080005;
-        public static final int alias=0x7f080002;
-        public static final int channel=0x7f080003;
-        public static final int input=0x7f080000;
-        public static final int send=0x7f080001;
-        public static final int splashscreen=0x7f080004;
+        public static final int action_settings=0x7f080006;
+        public static final int alias=0x7f080003;
+        public static final int channel=0x7f080004;
+        public static final int input=0x7f080001;
+        public static final int list=0x7f080000;
+        public static final int send=0x7f080002;
+        public static final int splashscreen=0x7f080005;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;

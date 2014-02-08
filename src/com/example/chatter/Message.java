@@ -20,7 +20,6 @@ public class Message {
 		channel = in[1];
 		message = in[2];
 		key=input;
-		time = in[3];
 	}
 	public Message(String input, Profile user){
 		String[] in = input.split("&&");
@@ -28,13 +27,12 @@ public class Message {
 		channel =user.getChannel();
 		message = input;
 		key=this.pushMessage();
-		time = ""+Math.random()*1000;
 	}
 	
 	public String pushMessage(){
 		Date current = new Date();
 		String toSend = alias + "&&" + channel + "&&" + message 
-				+ "&&" + current.getTime();
+				+ "&&" ;
 		return toSend;
 	}
 	

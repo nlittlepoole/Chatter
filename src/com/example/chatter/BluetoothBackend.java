@@ -5,10 +5,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
@@ -19,9 +24,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 public class BluetoothBackend extends Activity {
@@ -37,8 +46,12 @@ public class BluetoothBackend extends Activity {
 	private ArrayList<Object> connections=new ArrayList<Object>();
 	private static boolean connect=false;
 	public static Profile user;
-	private static boolean pause=true;
+	private static boolean pause=false;
 	private static ProgressDialog progress;
+	private  static StableArrayAdapter adapter;
+	private static ArrayList<String> list = new ArrayList<String>();
+	private static boolean refresh=false;
+	private static Set<BluetoothDevice>  remove=new HashSet<BluetoothDevice>(); 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -47,24 +60,34 @@ public class BluetoothBackend extends Activity {
 		String channel = intent.getStringExtra("CHANNEL");
 		user=new Profile(alias,channel);
 		setContentView(R.layout.chat);
-		progress = ProgressDialog.show(this, "dialog title",
-		    "dialog message", true);
+		 final ListView listview = (ListView) findViewById(R.id.list);
+		    this.update();
+		      adapter = new StableArrayAdapter(this,
+		        android.R.layout.simple_list_item_1, list);
+		    listview.setAdapter(adapter);
+		    
+		   
+		progress = ProgressDialog.show(this, "Loading",
+		    "Waiting for Peers", true);
 		mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();        
 		ArrayList<UUID> mUuids = new ArrayList<UUID>();
 		// 8 randomly-generated UUIDs. These must match on both server and client.
 		mUuids.add(UUID.fromString("b7746a40-c758-4868-aa19-7ac6b3475dfc"));
 		mUuids.add(UUID.fromString("2d64189d-5a2c-4511-a074-77f199fd0834"));
+		
 		mUuids.add(UUID.fromString("e442e09a-51f3-4a7b-91cb-f638491d1412"));
 		mUuids.add(UUID.fromString("a81d6504-4536-49ee-a475-7d96d09439e4"));
+		
 		mUuids.add(UUID.fromString("aa91eab1-d8ad-448e-abdb-95ebba4a9b55"));
 		mUuids.add(UUID.fromString("4d34da73-d0a4-4f40-ac38-917e0a9dee97"));
-		mUuids.add(UUID.fromString("5e14d4df-9c8a-4db7-81e4-c937564c86e0"));
+		/* mUuids.add(UUID.fromString("5e14d4df-9c8a-4db7-81e4-c937564c86e0"));
 		mUuids.add(UUID.fromString("4df56fe0-9079-11e3-baa8-0800200c9a66"));
+		
 		while(listeners.size()<4){
 			int random=(int) (Math.random() * mUuids.size()-1);
 			listeners.add(mUuids.get(random));
 			mUuids.remove(random);
-		}
+		} */
 		connectors=mUuids;
 
 		// Register for broadcasts when a device is discovered
@@ -102,11 +125,34 @@ public class BluetoothBackend extends Activity {
 			}
 		}*/
 	}
+	private static void update(){
+	    for (int i = 0; i < Message.feed.size(); i++) {
+	    	Message temp=Message.feed.poll();
+	    	String message=temp.getAlias()+" from " +temp.getChannel() + ": "+temp.getMessage();
+	      list.add(message);
+	    }
+	}
+	
+	  private class StableArrayAdapter extends ArrayAdapter<String> {
+
+		    HashMap<String, Integer> mIdMap = new HashMap<String, Integer>();
+
+		    public StableArrayAdapter(Context context, int textViewResourceId,
+		        List<String> objects) {
+		      super(context, textViewResourceId, objects);
+		      for (int i = 0; i < objects.size(); ++i) {
+		        mIdMap.put(objects.get(i), i);
+		      }
+		    }
+	  }
 	public void send(View view){
 		EditText editText = (EditText) findViewById(R.id.input);
 		String send = editText.getText().toString();
+		editText.setText("");
 		Message message= new Message(send, user);
 		Message.queueMessage(message);
+		this.update();
+		adapter.notifyDataSetChanged();
 	}
 	public void push(){
 		new Thread(new Runnable() {
@@ -120,8 +166,9 @@ public class BluetoothBackend extends Activity {
 					}
 					if(!Profile.toSend.isEmpty()){
 						for( int i=0; i<connections.size();i++){
-							((ConnectedThread) connections.get(i)).write(Profile.toSend.poll().pushMessage().getBytes());
+							((ConnectedThread) connections.get(i)).write(Profile.toSend.peek().pushMessage().getBytes());
 						}
+						Profile.toSend.poll();
 					}
 				}
 			}
@@ -136,20 +183,26 @@ public class BluetoothBackend extends Activity {
 		for(int i=0; i<devices.size();i++){
 			for(UUID uuid:connectors){
 				if(devices.get(i)!=null){
-						if(connect){
 							Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
-							mConnectedThread.start();			            
-						}
+							mConnectedThread.start();
 					}
 					
 				}
-			connect=true;
+				devices.removeAll(remove);
 		}
 		progress.dismiss();
+		/*while(true){
+			if(refresh){
+				this.update();
+				adapter.notifyDataSetChanged();
+				refresh=false;
+			}
+		} */
+		
 	}
 	/** Called when the user clicks the Accept button */
 	public void accept(){
-		for(UUID uuid:listeners){
+		for(UUID uuid:connectors){
 			Thread mConnectedThread = new AcceptThread(uuid);
 			mConnectedThread.start();
 		}
@@ -210,16 +263,17 @@ public class BluetoothBackend extends Activity {
 				if (socket != null) {
 					// Do work to manage the connection (in a separate thread)
 					//manageConnectedSocket(socket);
-					System.out.println("Success!!!!!");
+					System.out.println("Success Accept!!!!!");
+					pause=true;
 					connections.add(new ConnectedThread(socket));
 					((Thread) connections.get(connections.size()-1)).start();
-					/* try {
+					 /*try {
 							mmServerSocket.close();
 						} catch (IOException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
-						}
-			               break; */
+						}*/
+
 				}
 
 			} catch (IOException e) { }
@@ -261,15 +315,20 @@ public class BluetoothBackend extends Activity {
 			} catch (IOException connectException) {
 				// Unable to connect; close the socket and get out
 				try {
+					System.out.println("Fail");
+					remove.add(mmDevice);
 					mmSocket.close();
 				} catch (IOException closeException) { }
 				return;
 			}
 			connect=false;
-			Message test=new Message("Fuck Java splitting",user);
+			System.out.println("Success Connect!!!");
+			pause=true;
+			remove.add(mmDevice);
+			//Message test=new Message("Fuck Java splitting",user);
 			connections.add(new ConnectedThread(mmSocket));
 			((Thread) connections.get(connections.size()-1)).start();
-			((ConnectedThread) connections.get(connections.size()-1)).write(test.pushMessage().getBytes());
+			//((ConnectedThread) connections.get(connections.size()-1)).write(test.pushMessage().getBytes());
 
 			// Do work to manage the connection (in a separate thread)
 			//manageConnectedSocket(mmSocket);
@@ -316,8 +375,10 @@ public class BluetoothBackend extends Activity {
 					input=input.substring(0, bytes);
 					System.out.println(input);
 					Message message=new Message(input);
-					if(!user.inAliases(message.getAlias()))
+					if(!user.inAliases(message.getAlias())){
 							Message.queueMessage(message);
+							myHandler.post(updateRunnable);
+					}
 							
 					// Send the obtained bytes to the UI activity
 					//mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
@@ -342,5 +403,15 @@ public class BluetoothBackend extends Activity {
 			} catch (IOException e) { }
 		}
 	}
+	private final Handler myHandler = new Handler();
+    
+    final Runnable updateRunnable = new Runnable() {
+        public void run() {
+            //call the activity method that updates the UI
+            update();
+            adapter.notifyDataSetChanged();
+        }
+    };
+
 
 }
