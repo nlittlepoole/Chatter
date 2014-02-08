@@ -7,6 +7,8 @@
 
 package com.example.chatter;
 
+import android.view.View;
+
 public final class R {
     public static final class attr {
     }
@@ -22,10 +24,14 @@ public final class R {
     }
     public static final class drawable {
         public static final int ic_launcher=0x7f020000;
+<<<<<<< HEAD
         public static final int icon=0x7f020001;
         public static final int stratus=0x7f020002;
         public static final int stratus2=0x7f020003;
         public static final int stratus3=0x7f020004;
+=======
+		public static int notification_icon;
+>>>>>>> 61a84363eb96302cbe170935d913328d648fee3b
     }
     public static final class id {
         public static final int action_settings=0x7f080004;
@@ -36,13 +42,19 @@ public final class R {
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
+<<<<<<< HEAD
         public static final int chat=0x7f030001;
         public static final int login=0x7f030002;
         public static final int main=0x7f030003;
         public static final int splash=0x7f030004;
+=======
+        public static final int main=0x7f030001;
+		public static View activity_notify;
+>>>>>>> 61a84363eb96302cbe170935d913328d648fee3b
     }
     public static final class menu {
         public static final int main=0x7f070000;
+		public static int notify;
     }
     public static final class string {
         public static final int action_settings=0x7f050001;

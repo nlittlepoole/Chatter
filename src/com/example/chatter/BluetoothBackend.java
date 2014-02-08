@@ -79,6 +79,7 @@ public class BluetoothBackend extends Activity {
     	discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
     	startActivity(discoverableIntent);
     	mBluetoothAdapter.startDiscovery();
+    	push();
 		/*while(true){
 			if(Message.feed.peek()!=null){
 				Context context = getApplicationContext();
@@ -89,15 +90,38 @@ public class BluetoothBackend extends Activity {
 			}
 		}*/
      }
+	
+	public void push(){
+	    new Thread(new Runnable() {
+	        public void run() {
+	        	try {
+					Thread.sleep(45000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        	int x=4;
+		        while(x>0){
+		            String test="Fuck threading!!";
+		            System.out.println("Pushing");
+		            for( int i=0; i<connections.size();i++){
+		            	((ConnectedThread) connections.get(i)).write(test.getBytes());
+		            }
+		            x--;
+		        }
+	        }
+	    }).start();
+	}
+	
 	/** Called when the user clicks the Connect button */
 	public void connect(View view) {
 	    // Do something in response to button
     	for(int i=0; i<devices.size();i++){
-	    	if(devices.get(i)!=null){
-	    		for(UUID uuid:connectors){
+    		for(UUID uuid:connectors){
+    			if(devices.get(i)!=null){
 	    			if(connect){
 			        	Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
-			            mConnectedThread.start();
+			            mConnectedThread.start();			            
 	    			}
 	    		}
 	    		connect=true;

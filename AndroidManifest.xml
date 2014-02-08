@@ -5,7 +5,7 @@
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="11"
+        android:minSdkVersion="16"
         android:targetSdkVersion="18" />
 
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -28,6 +28,10 @@
         <activity
             android:name="com.example.chatter.Main"
             android:label="@string/title_activity_main" >
+        </activity>
+        <activity
+            android:name="com.example.chatter.Notify"
+            android:label="@string/title_activity_notify" >
         </activity>
     </application>
 
