@@ -32,22 +32,22 @@
             android:orientation="horizontal">
 
         <EditText
+            	android:id="@+id/input"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
                 android:layout_marginLeft="10dp"
                 android:hint="Send a message"
-                android:id="@+id/newmsg"
                 ></EditText>
 
         <Button
-                android:id="@+id/newmsgsend"
+                android:id="@+id/send"
                 android:background="#FFFFFF"
                 android:text="Send"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-
+				android:onClick="send"
                 ></Button>
     </LinearLayout>
     

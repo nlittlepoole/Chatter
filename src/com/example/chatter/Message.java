@@ -58,7 +58,6 @@ public class Message {
 		if(Message.isUnique(input)){
 			feed.add(input);
 			Profile.toSend.add(input);
-			System.out.println(input.getMessage());
 		}
 	}
 	private static boolean isUnique(Message input){

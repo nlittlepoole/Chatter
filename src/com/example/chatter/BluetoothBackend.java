@@ -10,6 +10,7 @@ import java.util.Vector;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -20,6 +21,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.view.Menu;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class BluetoothBackend extends Activity {
@@ -35,6 +37,8 @@ public class BluetoothBackend extends Activity {
 	private ArrayList<Object> connections=new ArrayList<Object>();
 	private static boolean connect=false;
 	public static Profile user;
+	private static boolean pause=true;
+	private static ProgressDialog progress;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -42,7 +46,9 @@ public class BluetoothBackend extends Activity {
 		String alias = intent.getStringExtra("ALIAS");
 		String channel = intent.getStringExtra("CHANNEL");
 		user=new Profile(alias,channel);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.chat);
+		progress = ProgressDialog.show(this, "dialog title",
+		    "dialog message", true);
 		mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();        
 		ArrayList<UUID> mUuids = new ArrayList<UUID>();
 		// 8 randomly-generated UUIDs. These must match on both server and client.
@@ -84,7 +90,8 @@ public class BluetoothBackend extends Activity {
 		discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 0);
 		startActivity(discoverableIntent);
 		mBluetoothAdapter.startDiscovery();
-		push();
+		accept();
+		//progress.dismiss();
 		/*while(true){
 			if(Message.feed.peek()!=null){
 				Context context = getApplicationContext();
@@ -95,7 +102,12 @@ public class BluetoothBackend extends Activity {
 			}
 		}*/
 	}
-
+	public void send(View view){
+		EditText editText = (EditText) findViewById(R.id.input);
+		String send = editText.getText().toString();
+		Message message= new Message(send, user);
+		Message.queueMessage(message);
+	}
 	public void push(){
 		new Thread(new Runnable() {
 			public void run() {
@@ -117,22 +129,26 @@ public class BluetoothBackend extends Activity {
 	}
 
 	/** Called when the user clicks the Connect button */
-	public void connect(View view) {
+	public void connect() {
+		mBluetoothAdapter.cancelDiscovery();
+		this.unregisterReceiver(mReceiver);
 		// Do something in response to button
 		for(int i=0; i<devices.size();i++){
 			for(UUID uuid:connectors){
 				if(devices.get(i)!=null){
-					if(connect){
-						Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
-						mConnectedThread.start();			            
+						if(connect){
+							Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
+							mConnectedThread.start();			            
+						}
 					}
+					
 				}
-				connect=true;
-			}
+			connect=true;
 		}
+		progress.dismiss();
 	}
 	/** Called when the user clicks the Accept button */
-	public void accept(View view){
+	public void accept(){
 		for(UUID uuid:listeners){
 			Thread mConnectedThread = new AcceptThread(uuid);
 			mConnectedThread.start();
@@ -164,8 +180,11 @@ public class BluetoothBackend extends Activity {
 				System.out.println(device.getName() + "\n" + device.getAddress() + "\n" + device.getBluetoothClass());
 				devices.add(device);
 				// When discovery is finished, change the Activity title
+				
 			} else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-
+				System.out.println("done");
+				connect();
+				push();	
 			}
 		}
 	};
@@ -295,6 +314,7 @@ public class BluetoothBackend extends Activity {
 					bytes = mmInStream.read(buffer);
 					String input =new String( buffer, Charset.forName("UTF-8") );
 					input=input.substring(0, bytes);
+					System.out.println(input);
 					Message message=new Message(input);
 					if(!user.inAliases(message.getAlias()))
 							Message.queueMessage(message);

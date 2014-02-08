@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.chatter.BluetoothBackendl"
+            android:name="com.example.chatter.BluetoothBackend"
             android:label="@string/title_activity_main" >
         </activity>
         <activity

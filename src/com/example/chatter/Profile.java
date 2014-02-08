@@ -15,8 +15,8 @@ public class Profile {
 	public static Queue<Message> toSend;
 	
 	public Profile(String alias,String channel){
-		this.channel=channel!=null?channel:"The Danger Zone";
-		this.alias = alias!=null ? alias:"Bill Belamy";
+		this.channel=channel!=null || channel.equals("")?channel:"The Danger Zone";
+		this.alias = alias!=null || alias.equals("")? alias:"Bill Belamy";
 		usedAliases = new HashSet<String>();
 		usedAliases.add(alias);
 		acceptedChannels = new HashSet<String>();
