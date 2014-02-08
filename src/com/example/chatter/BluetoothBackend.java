@@ -27,13 +27,32 @@ public class BluetoothBackend extends Activity {
     private static final int REQUEST_ENABLE_BT = 1;
     private static BluetoothAdapter mBluetoothAdapter;
     private static Vector<BluetoothDevice> devices=new Vector<BluetoothDevice>();
-
-
+    private ArrayList<String> mDeviceAddresses = new ArrayList<String>();
+    private ArrayList<ConnectedThread> mConnThreads = new ArrayList<ConnectedThread>();
+    private ArrayList<BluetoothSocket> mSockets = new ArrayList<BluetoothSocket>();
+    private ArrayList<UUID> listeners= new ArrayList<UUID>();
+    private ArrayList<UUID> connectors= new ArrayList<UUID>();
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();
+        ArrayList<UUID> mUuids = new ArrayList<UUID>();
+        // 8 randomly-generated UUIDs. These must match on both server and client.
+        mUuids.add(UUID.fromString("b7746a40-c758-4868-aa19-7ac6b3475dfc"));
+        mUuids.add(UUID.fromString("2d64189d-5a2c-4511-a074-77f199fd0834"));
+        mUuids.add(UUID.fromString("e442e09a-51f3-4a7b-91cb-f638491d1412"));
+        mUuids.add(UUID.fromString("a81d6504-4536-49ee-a475-7d96d09439e4"));
+        mUuids.add(UUID.fromString("aa91eab1-d8ad-448e-abdb-95ebba4a9b55"));
+        mUuids.add(UUID.fromString("4d34da73-d0a4-4f40-ac38-917e0a9dee97"));
+        mUuids.add(UUID.fromString("5e14d4df-9c8a-4db7-81e4-c937564c86e0"));
+        mUuids.add(UUID.fromString("4df56fe0-9079-11e3-baa8-0800200c9a66"));
+		while(listeners.size()<4){
+			int random=(int) (Math.random() * mUuids.size()-1);
+			listeners.add(mUuids.get(random));
+			mUuids.remove(random);
+		}
+		connectors=mUuids;
 
         // Register for broadcasts when a device is discovered
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
@@ -73,15 +92,19 @@ public class BluetoothBackend extends Activity {
 	    // Do something in response to button
     	for(int i=0; i<devices.size();i++){
 	    	if(devices.get(i)!=null){
-	        	Thread mConnectedThread = new ConnectThread(devices.get(i));
-	            mConnectedThread.start();
+	    		for(UUID uuid:connectors){
+		        	Thread mConnectedThread = new ConnectThread(devices.get(i),uuid);
+		            mConnectedThread.start();
+	    		}
 	    	}
     	}
 	}
 	/** Called when the user clicks the Accept button */
 	public void accept(View view){
-    	Thread mConnectedThread = new AcceptThread();
-        mConnectedThread.start();
+		for(UUID uuid:listeners){
+			Thread mConnectedThread = new AcceptThread(uuid);
+	        mConnectedThread.start();
+		}
 	}
 
     @Override
@@ -116,44 +139,39 @@ public class BluetoothBackend extends Activity {
 	};
 	public class AcceptThread extends Thread {
 		   private final BluetoothServerSocket mmServerSocket;
+		   private UUID uuid;
 
-		   public AcceptThread() {
+		   public AcceptThread(UUID input) {
 		       // Use a temporary object that is later assigned to mmServerSocket,
 		       // because mmServerSocket is final
 		       BluetoothServerSocket tmp = null;
-		       try {
-		           // MY_UUID is the app's UUID string, also used by the client code
-		    	   UUID temp=UUID.fromString("f79d717e-d685-4677-8eee-cc4529abbabd");
-		           tmp = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Stratus", temp);
-		       } catch (IOException e) { }
+		       uuid=input;
 		       mmServerSocket = tmp;
 		   }
 
 		   public void run() {
-		       BluetoothSocket socket = null;
-		       // Keep listening until exception occurs or a socket is returned
-		       while (true) {
-		           try {
-		               socket = mmServerSocket.accept();
-		           } catch (IOException e) {
-		               break;
-		           }
-		           // If a connection was accepted
-		           if (socket != null) {
-		               // Do work to manage the connection (in a separate thread)
-		               //manageConnectedSocket(socket);
-		        	   System.out.println("Success!!!!!");
-		        	   Thread mConnectedThread = new ConnectedThread(socket);
-		               mConnectedThread.start();
-		              /* try {
-						mmServerSocket.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-		               break; */
-		           }
-		       }
+			   try {
+				   BluetoothServerSocket serverSocket = null;
+				   BluetoothSocket socket = null;
+				   // MY_UUID is the app's UUID string, also used by the client code
+	            		serverSocket = mBluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("Stratus", uuid);
+	                    socket = serverSocket.accept();
+	                    if (socket != null) {
+			               // Do work to manage the connection (in a separate thread)
+			               //manageConnectedSocket(socket);
+			        	   System.out.println("Success!!!!!");
+			        	   Thread mConnectedThread = new ConnectedThread(socket);
+			               mConnectedThread.start();
+			              /* try {
+							mmServerSocket.close();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+			               break; */
+			           }
+			       
+			   } catch (IOException e) { }
 		   }
 
 		   /** Will cancel the listening socket, and cause the thread to finish */
@@ -167,7 +185,7 @@ public class BluetoothBackend extends Activity {
 	    private final BluetoothSocket mmSocket;
 	    private final BluetoothDevice mmDevice;
 	 
-	    public ConnectThread(BluetoothDevice device) {
+	    public ConnectThread(BluetoothDevice device, UUID uuid) {
 	        // Use a temporary object that is later assigned to mmSocket,
 	        // because mmSocket is final
 	        BluetoothSocket tmp = null;
@@ -176,8 +194,7 @@ public class BluetoothBackend extends Activity {
 	        // Get a BluetoothSocket to connect with the given BluetoothDevice
 	        try {
 	            // MY_UUID is the app's UUID string, also used by the server code
-	        	UUID temp=UUID.fromString("f79d717e-d685-4677-8eee-cc4529abbabd");
-	            tmp = device.createInsecureRfcommSocketToServiceRecord(temp);
+	            tmp = device.createInsecureRfcommSocketToServiceRecord(uuid);
 	        } catch (IOException e) { }
 	        mmSocket = tmp;
 	    }
@@ -243,14 +260,13 @@ public class BluetoothBackend extends Activity {
 	            try {
 	                // Read from the InputStream
 	                bytes = mmInStream.read(buffer);
-	  	                String input =new String( buffer, Charset.forName("UTF-8") );
-	  	                System.out.println(input);
-	  	                if(input!=null){
-	  	                	Message test=new Message(input);
-	  	                }
-	                // Send the obtained bytes to the UI activity
-	                //mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-	                  //      .sendToTarget();
+  	                String input =new String( buffer, Charset.forName("UTF-8") );
+  	                input=input.substring(0, bytes);
+  	                System.out.println(input);
+  	                Message test=new Message(input);
+                // Send the obtained bytes to the UI activity
+                //mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
+                  //      .sendToTarget();
 	            } catch (IOException e) {
 	                break;
 	            }
