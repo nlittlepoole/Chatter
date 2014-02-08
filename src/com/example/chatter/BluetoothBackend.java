@@ -293,7 +293,6 @@ public class BluetoothBackend extends Activity {
 					input=input.substring(0, bytes);
 					Message message=new Message(input);
 					if(!user.inAliases(message.getAlias()))
-						if(user.channelStatus(message.getChannel()))
 							Message.queueMessage(message);
 							
 					// Send the obtained bytes to the UI activity
