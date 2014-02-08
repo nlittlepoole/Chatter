@@ -34,10 +34,14 @@ public class BluetoothBackend extends Activity {
 	private ArrayList<UUID> connectors= new ArrayList<UUID>();
 	private ArrayList<Object> connections=new ArrayList<Object>();
 	private static boolean connect=false;
-	public static Profile user=new Profile("test","fuck test");
+	public static Profile user;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Intent intent = getIntent();
+		String alias = intent.getStringExtra("ALIAS");
+		String channel = intent.getStringExtra("CHANNEL");
+		user=new Profile(alias,channel);
 		setContentView(R.layout.activity_main);
 		mBluetoothAdapter=BluetoothAdapter.getDefaultAdapter();        
 		ArrayList<UUID> mUuids = new ArrayList<UUID>();
