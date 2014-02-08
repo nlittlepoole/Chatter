@@ -1,4 +1,6 @@
-package com.example.chatter;
+/*package com.example.chatter;
+
+import android.support.v4.app.NotificationCompat;
 
 public class Notify {
 
@@ -31,3 +33,4 @@ public class Notify {
     mNotificationManager.notify(mId, mBuilder.build());
 
 }
+*/
