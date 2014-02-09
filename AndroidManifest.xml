@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="com.example.chatter.Main"
+            android:name="com.tolkein.stratus.Splash"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,12 +26,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.example.chatter.BluetoothBackendl"
-            android:label="@string/title_activity_main" >
+            android:name="com.tolkein.stratus.BluetoothBackendl"
+            android:label="Chatter" >
         </activity>
         <activity
-            android:name="com.example.chatter.Notify"
+            android:name="com.tolkein.stratus.Notify"
             android:label="@string/title_activity_notify" >
+        </activity>
+        <activity
+            android:name="com.example.chatter.Main"
+            android:label="Login" >
         </activity>
     </application>
 
