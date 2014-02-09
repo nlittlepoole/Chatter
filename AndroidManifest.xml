@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.chatter"
+    package="com.tolkein.stratus"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.tolkein.stratus.BluetoothBackendl"
+            android:name="com.tolkein.stratus.Chatter"
             android:label="Chatter" >
         </activity>
         <activity
@@ -34,7 +34,7 @@
             android:label="@string/title_activity_notify" >
         </activity>
         <activity
-            android:name="com.example.chatter.Main"
+            android:name="com.tolkein.stratus.Main"
             android:label="Login" >
         </activity>
     </application>
